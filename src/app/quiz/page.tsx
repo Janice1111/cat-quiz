@@ -101,7 +101,7 @@ export default function QuizPage() {
             rotateY: 0,
             scale: 1,
             transition: {
-                type: "spring",
+                type: "spring" as const,
                 bounce: 0.2,
                 duration: 0.6
             }
