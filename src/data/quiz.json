@@ -1,0 +1,352 @@
+{
+  "version": "1.0.0",
+  "scoring": {
+    "dimensions": [
+      { "key": "E", "name": "外向", "desc": "社交/表达/好奇" },
+      { "key": "S", "name": "稳态", "desc": "规律/谨慎/抗风险" },
+      { "key": "D", "name": "主导", "desc": "决断/掌控/边界感" },
+      { "key": "N", "name": "敏感", "desc": "共情/情绪细腻/易受影响" }
+    ],
+    "option_points": 2,
+    "default_option_dimension_map": {
+      "A": "E",
+      "B": "S",
+      "C": "D",
+      "D": "N"
+    },
+    "balanced_rule": {
+      "enabled": true,
+      "max_minus_min_lte": 4,
+      "result_type_if_balanced": "maine_coon"
+    },
+    "result_mapping": [
+      { "when": { "top1": "E", "top2": "D" }, "result_type": "siamese" },
+      { "when": { "top1": "D", "top2": "S" }, "result_type": "british_shorthair" },
+      { "when": { "top1": "N", "top2": "S" }, "result_type": "ragdoll" },
+      { "when": { "top1": "E", "top2": "N" }, "result_type": "cow_cat" },
+      { "when": { "top1": "S" }, "result_type": "scottish_fold" },
+      { "when": { "top1": "D" }, "result_type": "bengal" },
+      { "when": { "top1": "N" }, "result_type": "chinchilla_persian" },
+      { "when": { "top1": "E" }, "result_type": "orange_cat" },
+      { "when": { "top1": "S", "top2": "E" }, "result_type": "tabby" }
+    ],
+    "tie_breaker": {
+      "method": "use_second_highest_dimension; if still tied use_priority_order",
+      "priority_order": ["D", "S", "E", "N"]
+    }
+  },
+  "questions": [
+    {
+      "id": "q01",
+      "text": "陌生人突然来你家做客，你会？",
+      "options": [
+        { "key": "A", "text": "立刻开聊，顺便带着参观", "dimension": "E" },
+        { "key": "B", "text": "先收拾一下再说，按流程来", "dimension": "S" },
+        { "key": "C", "text": "直接分配任务：你坐这、喝这个", "dimension": "D" },
+        { "key": "D", "text": "先观察对方情绪，找个舒服的方式安顿", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q02",
+      "text": "你最受不了的，是哪种情况？",
+      "options": [
+        { "key": "A", "text": "没人回应、气氛太冷", "dimension": "E" },
+        { "key": "B", "text": "计划被打乱、节奏乱套", "dimension": "S" },
+        { "key": "C", "text": "被指挥、被越界", "dimension": "D" },
+        { "key": "D", "text": "被误解、被冷落", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q03",
+      "text": "周末最理想的状态？",
+      "options": [
+        { "key": "A", "text": "约人出去玩，越热闹越好", "dimension": "E" },
+        { "key": "B", "text": "在家整理、做饭、补觉", "dimension": "S" },
+        { "key": "C", "text": "搞定一件大事，效率拉满", "dimension": "D" },
+        { "key": "D", "text": "看剧听歌，给自己充电疗愈", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q04",
+      "text": "工作/学习遇到突发 bug，你第一反应？",
+      "options": [
+        { "key": "A", "text": "先找人讨论，碰碰思路", "dimension": "E" },
+        { "key": "B", "text": "先复现→记录→再处理", "dimension": "S" },
+        { "key": "C", "text": "直接上手拆解，今天必须解决", "dimension": "D" },
+        { "key": "D", "text": "先缓一口气，别让情绪拖累判断", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q05",
+      "text": "你在群聊里的存在感更像？",
+      "options": [
+        { "key": "A", "text": "气氛组，梗王/捧哏", "dimension": "E" },
+        { "key": "B", "text": "信息整理员，发总结", "dimension": "S" },
+        { "key": "C", "text": "拍板的人，推进决策", "dimension": "D" },
+        { "key": "D", "text": "关怀的人，谁不开心我能看出来", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q06",
+      "text": "朋友迟到 30 分钟没解释，你会？",
+      "options": [
+        { "key": "A", "text": "发消息催：人呢人呢", "dimension": "E" },
+        { "key": "B", "text": "以后约会提前确认时间", "dimension": "S" },
+        { "key": "C", "text": "直接表达不爽：下次别这样", "dimension": "D" },
+        { "key": "D", "text": "先想是不是出事了，问一句你还好吗", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q07",
+      "text": "面对新环境（新公司/新班级），你通常？",
+      "options": [
+        { "key": "A", "text": "很快认识一圈人", "dimension": "E" },
+        { "key": "B", "text": "先观察规则，再慢慢融入", "dimension": "S" },
+        { "key": "C", "text": "迅速找到核心人物/资源", "dimension": "D" },
+        { "key": "D", "text": "先找一个安全感来源", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q08",
+      "text": "你做决定更靠什么？",
+      "options": [
+        { "key": "A", "text": "直觉 + 当下感觉", "dimension": "E" },
+        { "key": "B", "text": "证据 + 风险评估", "dimension": "S" },
+        { "key": "C", "text": "目标 + 控制变量", "dimension": "D" },
+        { "key": "D", "text": "关系 + 对人的影响", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q09",
+      "text": "你最像哪种“生存策略”？",
+      "options": [
+        { "key": "A", "text": "走到哪都能混熟", "dimension": "E" },
+        { "key": "B", "text": "稳扎稳打，慢慢变强", "dimension": "S" },
+        { "key": "C", "text": "先占主动权，别被拿捏", "dimension": "D" },
+        { "key": "D", "text": "共情与洞察，避开冲突", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q10",
+      "text": "你对“突然的旅行/惊喜安排”态度？",
+      "options": [
+        { "key": "A", "text": "冲！越突然越刺激", "dimension": "E" },
+        { "key": "B", "text": "可以，但要提前知道大概计划", "dimension": "S" },
+        { "key": "C", "text": "可以，我来定路线", "dimension": "D" },
+        { "key": "D", "text": "看跟谁去，别让我不舒服就行", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q11",
+      "text": "你更像“爱说话的猫”还是“高冷的猫”？",
+      "options": [
+        { "key": "A", "text": "爱说话，憋着难受", "dimension": "E" },
+        { "key": "B", "text": "不多说，但做事很靠谱", "dimension": "S" },
+        { "key": "C", "text": "只在必要时发言，而且一针见血", "dimension": "D" },
+        { "key": "D", "text": "不说不代表没想法，内心戏很多", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q12",
+      "text": "当你不开心时，你会？",
+      "options": [
+        { "key": "A", "text": "找人倾诉，聊着就好了", "dimension": "E" },
+        { "key": "B", "text": "做点规律的事让自己稳定", "dimension": "S" },
+        { "key": "C", "text": "让自己忙起来，把情绪压下去", "dimension": "D" },
+        { "key": "D", "text": "需要独处消化，慢慢回温", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q13",
+      "text": "你喜欢别人怎么对你表达喜欢？",
+      "options": [
+        { "key": "A", "text": "明确、热烈、常联系", "dimension": "E" },
+        { "key": "B", "text": "稳定、守时、说到做到", "dimension": "S" },
+        { "key": "C", "text": "尊重我、给我空间、别黏", "dimension": "D" },
+        { "key": "D", "text": "细节关心、能懂我情绪", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q14",
+      "text": "你处理关系矛盾更像？",
+      "options": [
+        { "key": "A", "text": "当面讲开，别憋着", "dimension": "E" },
+        { "key": "B", "text": "先冷静，约个时间再谈", "dimension": "S" },
+        { "key": "C", "text": "直接设边界：哪些不行", "dimension": "D" },
+        { "key": "D", "text": "先安抚情绪，再讨论问题", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q15",
+      "text": "你面对“被评价/被审视”会？",
+      "options": [
+        { "key": "A", "text": "无所谓，我还能把场子带起来", "dimension": "E" },
+        { "key": "B", "text": "先把自己做扎实，评价自然会变", "dimension": "S" },
+        { "key": "C", "text": "评价可以，但别越界/别指挥我", "dimension": "D" },
+        { "key": "D", "text": "会在意，但不想让别人看出来", "dimension": "N" }
+      ]
+    },
+    {
+      "id": "q16",
+      "text": "你更在乎生活的哪一项？",
+      "options": [
+        { "key": "A", "text": "新鲜感与故事", "dimension": "E" },
+        { "key": "B", "text": "安稳与秩序", "dimension": "S" },
+        { "key": "C", "text": "掌控与成长", "dimension": "D" },
+        { "key": "D", "text": "连接与被理解", "dimension": "N" }
+      ]
+    }
+  ],
+  "results": {
+    "siamese": {
+      "type": "siamese",
+      "title": "暹罗猫人格",
+      "keywords": ["聪明", "表达欲", "主见强", "嘴硬心软", "行动派"],
+      "portrait": [
+        "你脑子转得快，反应快，热衷把事情讲清楚、推进到位。",
+        "你对人也敏感，但不太爱用软绵绵的方式表达，常给人一点“锋利感”。",
+        "其实你很在乎，只是更习惯用“解决问题”来表达关心。"
+      ],
+      "advice": {
+        "social": "少用反问句，多用“我感受是…”来表达，你会更容易被理解。",
+        "love": "给对方一个“你很重要”的明确表达，别只给方案。",
+        "work": "你适合做推进者/owner，但记得留出协作空间。"
+      }
+    },
+    "british_shorthair": {
+      "type": "british_shorthair",
+      "title": "英短人格",
+      "keywords": ["稳", "边界感", "靠谱", "低调强", "抗干扰"],
+      "portrait": [
+        "你不吵不闹，但很能扛事，属于越相处越发现厉害的类型。",
+        "你偏好规则和秩序，讨厌浪费时间，也讨厌被打乱节奏。",
+        "你看似淡，其实内核很硬：一旦认定，就长期主义。"
+      ],
+      "advice": {
+        "social": "偶尔解释一下你的“冷”，别人会更安心。",
+        "love": "你要的不是甜言蜜语，是稳定兑现与尊重边界。",
+        "work": "适合基建、质量、交付、制度化建设类角色。"
+      }
+    },
+    "ragdoll": {
+      "type": "ragdoll",
+      "title": "布偶人格",
+      "keywords": ["温柔", "共情强", "治愈", "慢热", "柔中带稳"],
+      "portrait": [
+        "你给人一种“靠近就会变轻松”的感觉。",
+        "你很会读空气，能捕捉他人的情绪波动，也因此容易累。",
+        "你不爱硬碰硬，更倾向用温柔的方法把事情变得可行。"
+      ],
+      "advice": {
+        "social": "学会说“不”，你不是情绪垃圾桶。",
+        "love": "选愿意照顾你情绪的人，而不是只享受你温柔的人。",
+        "work": "适合协调、内容、用户理解类工作；注意边界与休息。"
+      }
+    },
+    "cow_cat": {
+      "type": "cow_cat",
+      "title": "奶牛猫人格",
+      "keywords": ["反差萌", "戏精", "灵动", "感受力强", "社交磁场"],
+      "portrait": [
+        "你很会把气氛搞起来，又能在关键时刻共情到位。",
+        "你看似随性，内心其实有一把敏感秤：谁真谁假，你感觉得到。",
+        "你的魅力来自反差：热闹里有细腻，细腻里有幽默。"
+      ],
+      "advice": {
+        "social": "少一点自我消耗式照顾，多一点“我也需要”。",
+        "love": "你需要的是会接梗也会接住你情绪的人。",
+        "work": "适合传播、运营、销售、产品沟通；避免情绪透支。"
+      }
+    },
+    "scottish_fold": {
+      "type": "scottish_fold",
+      "title": "折耳人格",
+      "keywords": ["温吞", "秩序控", "谨慎", "稳定输出", "慢热"],
+      "portrait": [
+        "你不是慢，是稳。你需要时间确认安全和规则，再进入状态。",
+        "你不喜欢太多变动，也不喜欢被逼着立刻表态。",
+        "一旦你认定一个人/一件事，就会很长情。"
+      ],
+      "advice": {
+        "social": "提前说清你的节奏，别让别人误会你在敷衍。",
+        "love": "你需要温和但坚定的推进，不要被强推型吓跑。",
+        "work": "适合流程、风控、质量、测试、运营执行等岗位。"
+      }
+    },
+    "bengal": {
+      "type": "bengal",
+      "title": "孟加拉人格",
+      "keywords": ["精力旺", "好胜", "掌控感", "目标明确", "讨厌拖"],
+      "portrait": [
+        "你不太能忍“慢慢来”，你更喜欢直接推进到结果。",
+        "你对边界很清楚，也希望别人尊重你的规则。",
+        "你不是不好相处，你只是讨厌低效。"
+      ],
+      "advice": {
+        "social": "把标准说出来，而不是用脸色表达。",
+        "love": "你适合势均力敌的伴侣，不然会觉得无聊。",
+        "work": "适合项目推进、BD、创业型团队、战斗型岗位。"
+      }
+    },
+    "chinchilla_persian": {
+      "type": "chinchilla_persian",
+      "title": "金吉拉/波斯人格",
+      "keywords": ["细腻", "审美高", "敏感", "需要安全感", "慢慢发光"],
+      "portrait": [
+        "你情绪很细，感受强，容易被环境影响。",
+        "你不喜欢粗糙的人和事，追求舒服、好看、有分寸。",
+        "你看似安静，其实内心很有故事。"
+      ],
+      "advice": {
+        "social": "别把所有情绪都自己吞，找一个稳定出口。",
+        "love": "你需要温柔且可靠的伴侣，别被忽冷忽热折磨。",
+        "work": "适合设计、内容、策划、用户体验；注意情绪保护。"
+      }
+    },
+    "orange_cat": {
+      "type": "orange_cat",
+      "title": "橘猫人格",
+      "keywords": ["乐观", "外向", "随遇而安", "快乐制造机", "适应力强"],
+      "portrait": [
+        "你自带“生活可以更有趣”的滤镜。",
+        "你不爱内耗，遇到事更倾向先动起来。",
+        "你很容易跟人建立连接，走到哪都能混熟。"
+      ],
+      "advice": {
+        "social": "别只顾着照亮别人，也要记得照顾自己。",
+        "love": "你适合互动多、反馈快的关系模式。",
+        "work": "适合对外沟通、销售、活动、运营；注意别虎头蛇尾。"
+      }
+    },
+    "tabby": {
+      "type": "tabby",
+      "title": "狸花人格",
+      "keywords": ["接地气", "实用主义", "能吃苦", "适应环境", "灵活稳"],
+      "portrait": [
+        "你能热闹也能稳住；你不矫情，但很讲究“是否值得”。",
+        "你对资源和机会敏锐，知道什么时候该冲、什么时候该守。",
+        "你属于生活技能点很高、能把事落地的人。"
+      ],
+      "advice": {
+        "social": "你很会解决问题，但也别忘了表达感受。",
+        "love": "你需要一起过日子的人，而不是只会浪漫的人。",
+        "work": "适合运营、交付、工程实施、一线管理等落地型岗位。"
+      }
+    },
+    "maine_coon": {
+      "type": "maine_coon",
+      "title": "缅因人格（均衡型）",
+      "keywords": ["大气", "稳定", "温和领导", "容错高", "靠谱"],
+      "portrait": [
+        "你各方面都不极端，所以很能包容，也很能扛事。",
+        "你不爱争，但有天然的主心骨气质，别人会下意识靠你。",
+        "你更像长期主义的守护者：不靠爆发，靠持续。"
+      ],
+      "advice": {
+        "social": "别总做情绪稳定器，你也可以被照顾。",
+        "love": "你适合成熟稳定、一起成长的关系。",
+        "work": "适合管理、跨团队协作、规划/架构类工作。"
+      }
+    }
+  }
+}
