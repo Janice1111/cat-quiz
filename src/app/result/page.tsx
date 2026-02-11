@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Cat, Share2, Home, Download, Sparkles, Star } from 'lucide-react';
+import quizData from '@/data/quiz.json';
 import html2canvas from 'html2canvas';
 
 export default function ResultPage() {
