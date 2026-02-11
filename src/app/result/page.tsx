@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Cat, Share2, Home, Download, Sparkles, Star } from 'lucide-react';
-import quizData from '@/data/quiz.json';
+import html2canvas from 'html2canvas';
 
 export default function ResultPage() {
     return (
@@ -19,6 +19,7 @@ function ResultContent() {
     const router = useRouter();
     const type = searchParams.get('type');
     const [rarity, setRarity] = useState(0);
+    const [isSaving, setIsSaving] = useState(false);
 
     // Find result data
     const result = type && (quizData.results as any)[type];
@@ -30,6 +31,35 @@ function ResultContent() {
         const randomRarity = Math.floor(Math.random() * (15 - 1) + 1);
         setRarity(randomRarity);
     }, []);
+
+    const handleSaveImage = async () => {
+        const element = document.getElementById('result-card');
+        if (!element) return;
+
+        setIsSaving(true);
+        try {
+            // Use HTML2Canvas to capture the card
+            const canvas = await html2canvas(element, {
+                scale: 2, // Check for high resolution
+                backgroundColor: '#FDF6E3', // Match background
+                useCORS: true, // Allow cross-origin images if needed
+            });
+
+            // Convert to image
+            const image = canvas.toDataURL('image/png');
+
+            // Trigger download
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `我的猫系人格-${result?.title || 'result'}.png`;
+            link.click();
+        } catch (error) {
+            console.error('Save failed:', error);
+            alert('保存失败，请截图保存哦 T_T');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     if (!result) {
         return (
@@ -79,15 +109,45 @@ function ResultContent() {
                         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
                     </div>
 
-                    {/* Avatar Section */}
-                    <div className="relative h-48 bg-[#FFF8F0] flex items-center justify-center border-b-4 border-[#5C4033] border-dashed">
-                        {/* Placeholder for Character Art */}
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-[#FDE6BA] rounded-full blur-2xl opacity-50 transform scale-150"></div>
-                            <Cat className="w-32 h-32 text-[#5C4033] relative z-10" strokeWidth={1.5} />
-                            <div className="absolute -bottom-2 -right-4 bg-white border-2 border-[#5C4033] rounded-xl px-3 py-1 -rotate-6 shadow-md z-20">
-                                <span className="text-xs font-bold text-[#5C4033]"># {result.keywords[0]}</span>
+                    {/* Header Image Area */}
+                    <div className="h-80 bg-gradient-to-br from-indigo-100 to-purple-100 flex flex-col items-center justify-center relative p-6">
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{
+                                scale: 1,
+                                opacity: 1,
+                                y: [0, -10, 0]
+                            }}
+                            transition={{
+                                duration: 0.5,
+                                y: {
+                                    repeat: Infinity,
+                                    duration: 3,
+                                    ease: "easeInOut"
+                                }
+                            }}
+                            className="mb-6 relative w-56 h-56"
+                        >
+                            {/* Dynamic Image with Fallback */}
+                            <img
+                                src={`/images/cats/${result.type}.png`}
+                                alt={result.title}
+                                className="w-full h-full object-contain drop-shadow-2xl relative z-10"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                }}
+                            />
+                            {/* Fallback Icon (initially hidden if image loads, shown on error) */}
+                            <div className="hidden absolute inset-0 flex items-center justify-center">
+                                <Cat className="w-40 h-40 text-[#5C4033] opacity-50" />
                             </div>
+                            {/* Glow Effect */}
+                            <div className="absolute inset-0 bg-[#FDE6BA] rounded-full blur-3xl opacity-60 transform scale-110 -z-10"></div>
+                        </motion.div>
+
+                        <div className="absolute top-4 right-4 bg-white/30 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#5C4033] border border-white/40">
+                            专属人格鉴定书
                         </div>
                     </div>
 
@@ -97,16 +157,19 @@ function ResultContent() {
                         {/* Cat Monologue */}
                         <div className="mb-6 relative">
                             <div className="absolute -top-3 -left-2 text-4xl text-[#E6A23C] opacity-30 font-serif">“</div>
-                            <p className="text-[#5C4033] text-sm leading-7 font-medium text-justify px-4">
-                                {/* Constructing a monologue from portrait[0] for demo, ideally this comes from JSON */}
-                                {result.portrait[0]}
-                            </p>
+                            <div className="px-4 space-y-2">
+                                {result.portrait.map((line: string, idx: number) => (
+                                    <p key={idx} className="text-[#5C4033] text-sm leading-7 font-medium text-justify">
+                                        {line}
+                                    </p>
+                                ))}
+                            </div>
                             <div className="absolute -bottom-4 -right-2 text-4xl text-[#E6A23C] opacity-30 font-serif rotate-180">“</div>
                         </div>
 
                         {/* Keywords Tags */}
                         <div className="flex flex-wrap gap-2 justify-center mb-8">
-                            {result.keywords.slice(1).map((k: string, i: number) => (
+                            {result.keywords.map((k: string, i: number) => (
                                 <span key={i} className="px-3 py-1.5 bg-[#FDF6E3] border border-[#FDE6BA] text-[#8D7B68] rounded-lg text-xs font-bold">
                                     #{k}
                                 </span>
@@ -163,9 +226,22 @@ function ResultContent() {
                         <Home className="w-4 h-4" />
                         重测一次
                     </button>
-                    <button className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-[#5C4033] text-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] transition-all">
-                        <Share2 className="w-4 h-4" />
-                        保存鉴定卡
+                    <button
+                        onClick={handleSaveImage}
+                        disabled={isSaving}
+                        className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-[#5C4033] text-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        {isSaving ? (
+                            <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                生成中...
+                            </>
+                        ) : (
+                            <>
+                                <Download className="w-4 h-4" />
+                                保存鉴定卡
+                            </>
+                        )}
                     </button>
                 </div>
 
