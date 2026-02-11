@@ -65,10 +65,14 @@ export default function QuizPage() {
     const submitQuiz = async (finalAnswers: Record<string, string>) => {
         setIsSubmitting(true);
         try {
+            const token = localStorage.getItem('cat_test_token');
             const res = await fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ answers: finalAnswers }),
+                body: JSON.stringify({
+                    answers: finalAnswers,
+                    token: token
+                }),
             });
 
             const data = await res.json();

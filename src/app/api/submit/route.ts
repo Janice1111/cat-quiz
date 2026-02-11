@@ -20,15 +20,32 @@ export async function POST(request: Request) {
 
         // 1. 验证 token 并在最后核销激活码
         let activationCodeValue = '';
-        if (token) {
-            try {
-                // 解码 token 获取激活码 (简单版本)
-                // 如果之前 verify 接口加了 v1_ 前缀，这里也要处理
-                const decoded = Buffer.from(token, 'base64').toString('utf-8');
-                activationCodeValue = decoded.replace('v1_', '');
-            } catch (e) {
-                console.error('Token decode error:', e);
+        if (!token) {
+            return NextResponse.json(
+                { error: '越权访问：请先输入激活码' },
+                { status: 401 }
+            );
+        }
+
+        try {
+            // 解码 token 获取激活码
+            const decoded = Buffer.from(token, 'base64').toString('utf-8');
+            activationCodeValue = decoded;
+
+            // 再次校验数据库中该码是否仍然有效
+            const checkCode = codesDb.findByCode(activationCodeValue);
+            if (!checkCode || (checkCode.type === 'normal' && checkCode.isUsed)) {
+                return NextResponse.json(
+                    { error: '激活码无效或已失效' },
+                    { status: 401 }
+                );
             }
+        } catch (e) {
+            console.error('Token validation error:', e);
+            return NextResponse.json(
+                { error: '无效的安全令牌' },
+                { status: 401 }
+            );
         }
 
         // 1. Calculate Scores
