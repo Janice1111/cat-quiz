@@ -35,28 +35,42 @@ function ResultContent() {
 
     const handleSaveImage = async () => {
         const element = document.getElementById('result-card');
-        if (!element) return;
+        if (!element || isSaving) return;
 
         setIsSaving(true);
         try {
+            // Wait a tiny bit for any animations to settle
+            await new Promise(resolve => setTimeout(resolve, 300));
+
             // Use HTML2Canvas to capture the card
             const canvas = await html2canvas(element, {
-                scale: 2, // Check for high resolution
-                backgroundColor: '#FDF6E3', // Match background
-                useCORS: true, // Allow cross-origin images if needed
+                scale: 2,
+                backgroundColor: '#FDF6E3',
+                useCORS: true,
+                allowTaint: false,
+                logging: false,
+                width: element.offsetWidth,
+                height: element.offsetHeight,
             });
 
             // Convert to image
             const image = canvas.toDataURL('image/png');
 
-            // Trigger download
+            // Trigger download - more robust approach
             const link = document.createElement('a');
             link.href = image;
-            link.download = `我的猫系人格-${result?.title || 'result'}.png`;
+            link.download = `猫系人格-${result?.title || '鉴定卡'}.png`;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+
+            // Helpful overlay for mobile users in case download doesn't trigger automatically
+            if (/micromessenger|kanzhun|weibo/i.test(navigator.userAgent)) {
+                alert('已生成图鉴卡！如果在 App 中无法自动下载，请尝试长按结果图保存。');
+            }
         } catch (error) {
             console.error('Save failed:', error);
-            alert('保存失败，请截图保存哦 T_T');
+            alert('保存失败，可能是权限限制或图片还在加载中，请稍后再试或直接截图保存哦 T_T');
         } finally {
             setIsSaving(false);
         }
@@ -106,12 +120,11 @@ function ResultContent() {
                                 CAT PERSONALITY
                             </p>
                         </div>
-                        {/* Texture Overlay */}
-                        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                        {/* Removed external texture overlay to fix CORS issues in canvas capture */}
                     </div>
 
                     {/* Header Image Area */}
-                    <div className="h-80 bg-gradient-to-br from-indigo-100 to-purple-100 flex flex-col items-center justify-center relative p-6">
+                    <div className="h-80 bg-gradient-to-br from-[#FDE6BA]/50 to-[#FECACA]/30 flex flex-col items-center justify-center relative p-6">
                         <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{
