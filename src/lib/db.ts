@@ -35,7 +35,7 @@ export const codesDb = {
 
     // 标记为已使用
     markAsUsed(code: string) {
-        return db.prepare('UPDATE activation_codes SET isUsed = 1, usedAt = ? WHERE code = ? AND type = "normal"')
+        return db.prepare("UPDATE activation_codes SET isUsed = 1, usedAt = ? WHERE code = ? AND type = 'normal'")
             .run(new Date().toISOString(), code);
     },
 
