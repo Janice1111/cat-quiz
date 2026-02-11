@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { codesDb } from '@/lib/db';
 import quizData from '@/data/quiz.json';
 
 // Type definitions based on quiz.json structure
@@ -8,13 +9,26 @@ type CatResultKey = keyof typeof quizData.results;
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { answers } = body; // { q01: 'A', q02: 'B', ... }
+        const { answers, token } = body; // { q01: 'A', q02: 'B', ... }, token: "base64_code"
 
         if (!answers || Object.keys(answers).length === 0) {
             return NextResponse.json(
                 { error: '没有收到答案数据' },
                 { status: 400 }
             );
+        }
+
+        // 1. 验证 token 并在最后核销激活码
+        let activationCodeValue = '';
+        if (token) {
+            try {
+                // 解码 token 获取激活码 (简单版本)
+                // 如果之前 verify 接口加了 v1_ 前缀，这里也要处理
+                const decoded = Buffer.from(token, 'base64').toString('utf-8');
+                activationCodeValue = decoded.replace('v1_', '');
+            } catch (e) {
+                console.error('Token decode error:', e);
+            }
         }
 
         // 1. Calculate Scores
@@ -90,10 +104,25 @@ export async function POST(request: Request) {
         // 3. Construct Result Response
         const resultData = quizData.results[resultType];
 
+        // 4. 核销激活码 (如果存在且是普通码)
+        if (activationCodeValue) {
+            try {
+                const codeRecord = codesDb.findByCode(activationCodeValue);
+
+                if (codeRecord && codeRecord.type === 'normal') {
+                    codesDb.markAsUsed(activationCodeValue);
+                    console.log(`Code consumed: ${activationCodeValue}`);
+                }
+            } catch (dbError) {
+                // 核销失败不应该影响结果展示，但需要记录
+                console.error('Failed to consume code:', dbError);
+            }
+        }
+
         return NextResponse.json({
             success: true,
             resultType,
-            scores, // Optional: return scores for debugging or advanced display
+            scores,
             resultData
         });
 

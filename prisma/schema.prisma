@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model ActivationCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  isUsed    Boolean  @default(false)
+  usedAt    DateTime?
+  type      String   @default("normal") // "normal" 或 "admin"
+  createdAt DateTime @default(now())
+
+  @@index([code])
+  @@index([type, isUsed])
+}

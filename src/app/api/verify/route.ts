@@ -1,11 +1,5 @@
 import { NextResponse } from 'next/server';
-
-// Mock database of active codes
-// In a real app, this would be a database query (e.g., Supabase, Vercel KV)
-const MOCK_VALID_CODES = new Set([
-    'CAT-TEST-CODE',
-    'CAT-8823-X9Y2'
-]);
+import { codesDb } from '@/lib/db';
 
 export async function POST(request: Request) {
     try {
@@ -19,35 +13,36 @@ export async function POST(request: Request) {
             );
         }
 
-        // Standardize input
+        // 标准化输入
         const normalizedCode = code.trim().toUpperCase();
 
-        // Mock Validation Logic
-        // 1. Check if code matches format (CAT-XXXX-XXXX)
-        // 2. Check if code exists in DB (simulate with Set or Prefix check for demo)
+        // 数据库校验
+        const activationCode = codesDb.findByCode(normalizedCode);
 
-        // For DEMO purposes: allow any code starting with CAT-
-        const isValid = normalizedCode.startsWith('CAT-') || MOCK_VALID_CODES.has(normalizedCode);
-
-        if (!isValid) {
+        if (!activationCode) {
             return NextResponse.json(
                 { error: '无效的激活码，请检查输入' },
                 { status: 401 }
             );
         }
 
-        // In a real app: check if code is already used
-        // const isUsed = await db.check specific code...
-        // if (isUsed) return error...
+        // 如果是普通码，检查是否已使用
+        if (activationCode.type === 'normal' && activationCode.isUsed) {
+            return NextResponse.json(
+                { error: '该激活码已失效' },
+                { status: 401 }
+            );
+        }
 
-        // Return success + a session token (mock)
+        // 返回成功 + 简易 session token (base64 编码的 code)
         return NextResponse.json({
             success: true,
-            token: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            token: Buffer.from(normalizedCode).toString('base64'),
             message: '验证成功'
         });
 
     } catch (error) {
+        console.error('Verify error:', error);
         return NextResponse.json(
             { error: '服务器内部错误' },
             { status: 500 }
