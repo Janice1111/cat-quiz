@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Cat, Share2, Home, Download, Sparkles, Star } from 'lucide-react';
 import quizData from '@/data/quiz.json';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 
 export default function ResultPage() {
     return (
@@ -40,37 +40,37 @@ function ResultContent() {
         setIsSaving(true);
         try {
             // Wait a tiny bit for any animations to settle
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Use HTML2Canvas to capture the card
-            const canvas = await html2canvas(element, {
-                scale: 2,
+            // Use html-to-image (Better support for CSS variables and modern colors)
+            const dataUrl = await toPng(element, {
+                quality: 0.95,
+                pixelRatio: 2,
                 backgroundColor: '#FDF6E3',
-                useCORS: true,
-                allowTaint: false,
-                logging: false,
-                width: element.offsetWidth,
-                height: element.offsetHeight,
+                style: {
+                    borderRadius: '2rem', // Ensure consistent rounding in screenshot
+                }
             });
 
-            // Convert to image
-            const image = canvas.toDataURL('image/png');
-
-            // Trigger download - more robust approach
+            // Trigger download
             const link = document.createElement('a');
-            link.href = image;
-            link.download = `猫系人格-${result?.title || '鉴定卡'}.png`;
+            link.href = dataUrl;
+            link.download = `我的猫系人格-${result?.title || '鉴定卡'}.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
             // Helpful overlay for mobile users in case download doesn't trigger automatically
-            if (/micromessenger|kanzhun|weibo/i.test(navigator.userAgent)) {
-                alert('已生成图鉴卡！如果在 App 中无法自动下载，请尝试长按结果图保存。');
+            if (/micromessenger|kanzhun|weibo|mobile/i.test(navigator.userAgent)) {
+                // If it's a mobile browser, we might want to also open the image in a new tab 
+                // for long-press saving as a backup
+                setTimeout(() => {
+                    alert('已尝试下载！如果在 App 中无法自动保存，请尝试截图或长按结果页保存。');
+                }, 500);
             }
         } catch (error) {
             console.error('Save failed:', error);
-            alert('保存失败，可能是权限限制或图片还在加载中，请稍后再试或直接截图保存哦 T_T');
+            alert('保存失败，可能是浏览器权限限制。请尝试[截图保存]效果也是一样的哦！');
         } finally {
             setIsSaving(false);
         }
