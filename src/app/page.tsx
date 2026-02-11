@@ -45,6 +45,9 @@ export default function Home() {
 
       localStorage.setItem('cat_test_token', data.token);
 
+      // 同时设置 cookie 供服务器端中间件使用
+      document.cookie = `cat_test_token=${data.token}; path=/; max-age=3600; SameSite=Strict`;
+
       // Delay navigation slightly for sound/animation
       setTimeout(() => {
         router.push('/quiz');

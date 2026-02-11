@@ -126,13 +126,17 @@ export async function POST(request: Request) {
             try {
                 const codeRecord = codesDb.findByCode(activationCodeValue);
 
-                if (codeRecord && codeRecord.type === 'normal') {
+                if (codeRecord && codeRecord.type === 'normal' && !codeRecord.isUsed) {
                     codesDb.markAsUsed(activationCodeValue);
-                    console.log(`Code consumed: ${activationCodeValue}`);
+                    console.log(`[SUCCESS] Code consumed: ${activationCodeValue}`);
+                } else if (codeRecord?.type === 'admin') {
+                    console.log(`[ADMIN] Admin code used (not consumed): ${activationCodeValue}`);
+                } else {
+                    console.log(`[SKIP] Code already used or invalid: ${activationCodeValue}`);
                 }
             } catch (dbError) {
                 // 核销失败不应该影响结果展示，但需要记录
-                console.error('Failed to consume code:', dbError);
+                console.error('[ERROR] Failed to consume code:', dbError);
             }
         }
 
