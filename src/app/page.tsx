@@ -1,20 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Cat, KeyRound, ArrowRight, Loader2 } from 'lucide-react';
+import { Cat, KeyRound, Sparkles, PawPrint, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isShaking, setIsShaking] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const router = useRouter();
 
   const handleStart = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim()) {
-      setError('请输入激活码');
+      setError('喵？请先输入神秘暗号哦！');
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
       return;
     }
 
@@ -31,83 +35,123 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || '验证失败');
+        throw new Error(data.error || '暗号不对哦，再试一次？');
       }
 
-      // Success matching
+      // Success
+      if (audioRef.current) {
+        audioRef.current.play().catch(() => { }); // Attempt to play sound
+      }
+
       localStorage.setItem('cat_test_token', data.token);
-      router.push('/quiz');
+
+      // Delay navigation slightly for sound/animation
+      setTimeout(() => {
+        router.push('/quiz');
+      }, 800);
 
     } catch (err: any) {
       setError(err.message || '发生未知错误，请重试');
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 flex items-center justify-center p-4">
+    <main className="min-h-screen bg-[#FDF6E3] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+        <div className="absolute top-10 left-10 transform -rotate-12"><PawPrint size={64} className="text-[#E6A23C]" /></div>
+        <div className="absolute bottom-20 right-10 transform rotate-12"><PawPrint size={80} className="text-[#E6A23C]" /></div>
+        <div className="absolute top-1/2 left-[-20px] transform rotate-45"><Cat size={120} className="text-[#F56C6C]" /></div>
+      </div>
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, type: "spring" }}
+        className="max-w-md w-full bg-[#FFFBF0] rounded-[2rem] shadow-[8px_8px_0px_0px_rgba(230,162,60,0.2)] border-4 border-[#FDE6BA] overflow-hidden relative z-10"
       >
-        <div className="relative h-48 bg-gradient-to-r from-violet-500 to-fuchsia-500 flex items-center justify-center">
-          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-          <Cat className="text-white w-24 h-24 drop-shadow-lg" />
+        {/* Header Illustration Area */}
+        <div className="bg-[#FEF0D5] p-8 flex flex-col items-center justify-center relative border-b-4 border-[#FFF] border-dashed">
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+            className="bg-white p-4 rounded-full shadow-lg border-4 border-white mb-2"
+          >
+            <Cat className="text-[#E6A23C] w-16 h-16" />
+          </motion.div>
+          <div className="absolute top-4 right-6">
+            <Sparkles className="text-[#F56C6C] w-6 h-6 animate-pulse" />
+          </div>
         </div>
 
-        <div className="p-8">
-          <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-            如果你是一只猫...
-          </h1>
-          <p className="text-center text-gray-500 mb-8">
-            输入激活码，解锁你的猫咪人格图鉴
-          </p>
+        <div className="p-8 pt-6">
+          {/* Audio effect */}
+          <audio ref={audioRef} src="https://cdn.pixabay.com/audio/2024/09/02/audio_1739c63b72.mp3" preload="auto" />
 
-          <form onSubmit={handleStart} className="space-y-4">
-            <div className="relative">
-              <KeyRound className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-black text-[#5C4033] mb-2 tracking-wide">
+              遇见你的猫系灵魂
+            </h1>
+            <p className="text-[#8D7B68] text-sm font-medium">
+              输入神秘暗号，解密你的喵星身份
+            </p>
+          </div>
+
+          <form onSubmit={handleStart} className="space-y-5">
+            <motion.div
+              className="relative group"
+              animate={isShaking ? { x: [-10, 10, -10, 10, 0] } : {}}
+              transition={{ duration: 0.4 }}
+            >
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#D4A373] group-focus-within:text-[#E6A23C] transition-colors">
+                <KeyRound className="w-5 h-5" />
+              </div>
               <input
                 type="text"
-                placeholder="请输入激活码 (如 CAT-8823...)"
+                placeholder="喵，请出示你的激活码..."
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all uppercase text-gray-900 bg-gray-50 placeholder:text-gray-400"
+                className="w-full pl-12 pr-4 py-4 bg-white border-2 border-[#FDE6BA] rounded-full focus:outline-none focus:border-[#E6A23C] focus:ring-4 focus:ring-[#FEF0D5] transition-all text-[#5C4033] placeholder-[#D4A373] font-medium text-lg text-center tracking-widest uppercase shadow-sm"
               />
-            </div>
+            </motion.div>
 
             {error && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-red-500 text-sm text-center"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="text-[#F56C6C] text-sm text-center font-bold bg-[#FEF0D5] py-2 rounded-lg"
               >
                 {error}
               </motion.div>
             )}
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-[#E6A23C] text-white py-4 rounded-full font-bold text-lg shadow-[0px_4px_0px_0px_#B7791F] hover:bg-[#F0B15B] hover:shadow-[0px_4px_0px_0px_#C88A2E] active:translate-y-[2px] active:shadow-[0px_2px_0px_0px_#B7791F] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  验证中...
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  正在变身中...
                 </>
               ) : (
                 <>
-                  开始测试 <ArrowRight className="w-5 h-5" />
+                  立即变身 <PawPrint className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-xs text-gray-400">
-              还没有激活码？请联系发布者获取
+            <p className="text-xs text-[#C2B280] font-medium border-t-2 border-dashed border-[#FDE6BA] pt-4 inline-block px-4">
+              还没有暗号？去找找发布者吧 🐱
             </p>
           </div>
         </div>

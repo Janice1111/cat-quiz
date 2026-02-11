@@ -1,15 +1,14 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Cat, Share2, Home } from 'lucide-react';
+import { Cat, Share2, Home, Download, Sparkles, Star } from 'lucide-react';
 import quizData from '@/data/quiz.json';
 
-// Use Suspense boundary for useSearchParams in client component
 export default function ResultPage() {
     return (
-        <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+        <Suspense fallback={<div className="p-10 text-center text-[#8D7B68]">正在生成画像...</div>}>
             <ResultContent />
         </Suspense>
     );
@@ -19,17 +18,26 @@ function ResultContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const type = searchParams.get('type');
+    const [rarity, setRarity] = useState(0);
 
     // Find result data
     const result = type && (quizData.results as any)[type];
 
+    useEffect(() => {
+        // Calculate rarity based on type (mock logic for now, or random)
+        // Make it consistent for the same session if possible, but random is okay for fun
+        // Weighted random: 1% - 15% range usually feels "rare"
+        const randomRarity = Math.floor(Math.random() * (15 - 1) + 1);
+        setRarity(randomRarity);
+    }, []);
+
     if (!result) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center p-4">
-                <p className="text-gray-500 mb-4">找不到结果，请重新测试...</p>
+            <div className="min-h-screen bg-[#FDF6E3] flex flex-col items-center justify-center p-4">
+                <p className="text-[#8D7B68] mb-4">喵？找不到你的档案...</p>
                 <button
                     onClick={() => router.push('/')}
-                    className="bg-purple-500 text-white px-6 py-2 rounded-full"
+                    className="bg-[#E6A23C] text-white px-6 py-2 rounded-full shadow-md"
                 >
                     返回首页
                 </button>
@@ -38,91 +46,129 @@ function ResultContent() {
     }
 
     return (
-        <main className="min-h-screen bg-[#F5F5F7] p-4 pb-12">
+        <main className="min-h-screen bg-[#FDF6E3] p-4 py-8 overflow-hidden relative">
+            {/* Background Decor */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FDE6BA] rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#FECACA] rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="max-w-md mx-auto bg-white rounded-3xl overflow-hidden shadow-2xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="max-w-md mx-auto relative z-10"
                 id="result-card"
             >
-                {/* Header Image Area */}
-                <div className="h-64 bg-gradient-to-br from-indigo-100 to-purple-100 flex flex-col items-center justify-center relative p-6">
-                    <div className="mb-4">
-                        {/* Placeholder for AI Generated Image */}
-                        <Cat className="w-32 h-32 text-indigo-400 opacity-80" />
-                    </div>
-                    <div className="absolute top-4 right-4 bg-white/30 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-indigo-900">
-                        专属人格鉴定书
-                    </div>
-                    <h1 className="text-3xl font-black text-indigo-900 tracking-tight text-center">
-                        {result.title}
-                    </h1>
-                </div>
+                {/* Main Card with Organic Shape */}
+                <div className="bg-[#FFFBF0] rounded-[2rem] rounded-tr-[5rem] shadow-[8px_8px_0px_0px_rgba(92,64,51,0.1)] border-4 border-[#5C4033] overflow-hidden relative">
 
-                {/* Content Body */}
-                <div className="p-6">
-                    {/* Keywords */}
-                    <div className="flex flex-wrap gap-2 justify-center mb-8">
-                        {result.keywords.map((k: string, i: number) => (
-                            <span key={i} className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-semibold">
-                                #{k}
-                            </span>
-                        ))}
+                    {/* Header: Rarity & Title */}
+                    <div className="bg-[#5C4033] p-6 text-white text-center relative overflow-hidden">
+                        <div className="relative z-10">
+                            <div className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-md rounded-full px-3 py-1 text-xs font-bold ring-1 ring-white/30 mb-3">
+                                <Sparkles className="w-3 h-3 text-[#FFD700]" />
+                                <span>喵星稀有度 {rarity}%</span>
+                            </div>
+                            <h1 className="text-3xl font-black tracking-wider mb-1">
+                                {result.title}
+                            </h1>
+                            <p className="text-[#E6A23C] text-sm font-medium tracking-widest opacity-90">
+                                CAT PERSONALITY
+                            </p>
+                        </div>
+                        {/* Texture Overlay */}
+                        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
                     </div>
 
-                    {/* Portrait Description */}
-                    <div className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-                            <span className="w-1 h-5 bg-indigo-500 rounded-full"></span>
-                            你的画像
-                        </h3>
-                        <div className="space-y-3">
-                            {result.portrait.map((line: string, i: number) => (
-                                <p key={i} className="text-gray-600 leading-relaxed text-sm">
-                                    {line}
-                                </p>
+                    {/* Avatar Section */}
+                    <div className="relative h-48 bg-[#FFF8F0] flex items-center justify-center border-b-4 border-[#5C4033] border-dashed">
+                        {/* Placeholder for Character Art */}
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-[#FDE6BA] rounded-full blur-2xl opacity-50 transform scale-150"></div>
+                            <Cat className="w-32 h-32 text-[#5C4033] relative z-10" strokeWidth={1.5} />
+                            <div className="absolute -bottom-2 -right-4 bg-white border-2 border-[#5C4033] rounded-xl px-3 py-1 -rotate-6 shadow-md z-20">
+                                <span className="text-xs font-bold text-[#5C4033]"># {result.keywords[0]}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Content Body */}
+                    <div className="p-6">
+
+                        {/* Cat Monologue */}
+                        <div className="mb-6 relative">
+                            <div className="absolute -top-3 -left-2 text-4xl text-[#E6A23C] opacity-30 font-serif">“</div>
+                            <p className="text-[#5C4033] text-sm leading-7 font-medium text-justify px-4">
+                                {/* Constructing a monologue from portrait[0] for demo, ideally this comes from JSON */}
+                                {result.portrait[0]}
+                            </p>
+                            <div className="absolute -bottom-4 -right-2 text-4xl text-[#E6A23C] opacity-30 font-serif rotate-180">“</div>
+                        </div>
+
+                        {/* Keywords Tags */}
+                        <div className="flex flex-wrap gap-2 justify-center mb-8">
+                            {result.keywords.slice(1).map((k: string, i: number) => (
+                                <span key={i} className="px-3 py-1.5 bg-[#FDF6E3] border border-[#FDE6BA] text-[#8D7B68] rounded-lg text-xs font-bold">
+                                    #{k}
+                                </span>
                             ))}
                         </div>
-                    </div>
 
-                    {/* Advice Section */}
-                    <div className="bg-gray-50 rounded-2xl p-5 mb-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                            <span className="w-1 h-5 bg-pink-500 rounded-full"></span>
-                            生存指南
-                        </h3>
+                        {/* Survival Guide */}
                         <div className="space-y-4">
-                            <div className="flex gap-3">
-                                <span className="shrink-0 font-bold text-xs bg-white border border-gray-200 px-2 py-1 rounded h-fit text-gray-500">社交</span>
-                                <p className="text-sm text-gray-600 leading-relaxed">{result.advice.social}</p>
+                            <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-full bg-[#E6F7FF] flex items-center justify-center shrink-0 border border-[#91D5FF]">
+                                    <span className="text-xs">🤝</span>
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-[#8D7B68] mb-0.5">社交磁场</h4>
+                                    <p className="text-xs text-[#5C4033]/80 leading-relaxed">{result.advice.social}</p>
+                                </div>
                             </div>
-                            <div className="flex gap-3">
-                                <span className="shrink-0 font-bold text-xs bg-white border border-gray-200 px-2 py-1 rounded h-fit text-gray-500">恋爱</span>
-                                <p className="text-sm text-gray-600 leading-relaxed">{result.advice.love}</p>
+                            <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-full bg-[#FFF0F6] flex items-center justify-center shrink-0 border border-[#FFADD2]">
+                                    <span className="text-xs">❤️</span>
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-[#8D7B68] mb-0.5">情感频道</h4>
+                                    <p className="text-xs text-[#5C4033]/80 leading-relaxed">{result.advice.love}</p>
+                                </div>
                             </div>
-                            <div className="flex gap-3">
-                                <span className="shrink-0 font-bold text-xs bg-white border border-gray-200 px-2 py-1 rounded h-fit text-gray-500">工作</span>
-                                <p className="text-sm text-gray-600 leading-relaxed">{result.advice.work}</p>
+                            <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-full bg-[#F6FFED] flex items-center justify-center shrink-0 border border-[#B7EB8F]">
+                                    <span className="text-xs">💼</span>
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-[#8D7B68] mb-0.5">搬砖天赋</h4>
+                                    <p className="text-xs text-[#5C4033]/80 leading-relaxed">{result.advice.work}</p>
+                                </div>
                             </div>
                         </div>
+
                     </div>
 
-                    {/* Actions */}
-                    <div className="grid grid-cols-2 gap-3 mt-8">
-                        <button
-                            onClick={() => router.push('/')}
-                            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition-colors"
-                        >
-                            <Home className="w-4 h-4" />
-                            重测一次
-                        </button>
-                        <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                            <Share2 className="w-4 h-4" />
-                            保存结果
-                        </button>
+                    {/* Footer Stamp */}
+                    <div className="bg-[#FEF0D5] p-3 text-center border-t-4 border-[#5C4033] border-dashed">
+                        <p className="text-[10px] text-[#A69080] font-mono tracking-widest">
+                            CAT IDENTITY VERIFIED
+                        </p>
                     </div>
-                    <p className="text-center text-xs text-gray-400 mt-4">在这里长按截图保存你的结果卡片</p>
                 </div>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-4 mt-8 px-2">
+                    <button
+                        onClick={() => router.push('/')}
+                        className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-white border-2 border-[#E6A23C] text-[#E6A23C] font-bold shadow-sm hover:bg-[#FFFBF0] transition-colors"
+                    >
+                        <Home className="w-4 h-4" />
+                        重测一次
+                    </button>
+                    <button className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-[#5C4033] text-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)] hover:translate-y-[2px] transition-all">
+                        <Share2 className="w-4 h-4" />
+                        保存鉴定卡
+                    </button>
+                </div>
+
             </motion.div>
         </main>
     );
